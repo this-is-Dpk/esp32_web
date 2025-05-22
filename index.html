@@ -2,17 +2,56 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Ubidots Data Display</title>
+  <title>Ubidots LDR Data Display</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    h1 { color: #333; }
-    #data { font-size: 1.5em; margin-top: 20px; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #e8f0fe;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      color: #333;
+    }
+    h1 {
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    #data {
+      font-size: 3em;
+      margin: 20px 0;
+      color: #1a73e8;
+      background: #ffffff;
+      padding: 20px 50px;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(26,115,232,0.3);
+    }
+    button {
+      background-color: #1a73e8;
+      border: none;
+      padding: 12px 30px;
+      color: white;
+      font-size: 1.2em;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #155ab6;
+    }
+    #error {
+      color: #d93025;
+      margin-top: 15px;
+    }
   </style>
 </head>
 <body>
-  <h1>Ubidots Data from ESP32</h1>
-  <button onclick="fetchData()">Get Latest Temperature</button>
-  <div id="data">Press the button to fetch data</div>
+  <h1>Live LDR Sensor Value from ESP32</h1>
+  <div id="data">--</div>
+  <button onclick="fetchData()">Fetch Latest Value</button>
+  <div id="error"></div>
 
   <script>
     const TOKEN = "BBUS-E8OQ3T41MLmY5Vt6gV7jhZbk56uVkO"; // Your Ubidots token here
@@ -35,11 +74,16 @@
         }
 
         const value = await response.json();
-        document.getElementById("data").innerText = `Latest Temperature: ${value} °C`;
+        document.getElementById("data").innerText = `${value} (ADC value)`;
+        document.getElementById("error").innerText = "";
       } catch (error) {
-        document.getElementById("data").innerText = `Error: ${error.message}`;
+        document.getElementById("error").innerText = `Error: ${error.message}`;
       }
     }
+
+    // Auto-fetch every 10 seconds
+    fetchData();
+    setInterval(fetchData, 10000);
   </script>
 </body>
 </html>
