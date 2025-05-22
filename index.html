@@ -2,61 +2,58 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Ubidots LDR Data Display</title>
+  <title>Digital LDR Voltage Meter</title>
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #e8f0fe;
+      font-family: 'Digital-7 Mono', 'Courier New', monospace;
+      background: linear-gradient(to bottom right, #20232a, #444950);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       height: 100vh;
       margin: 0;
-      color: #333;
+      color: #00ff00;
     }
+
     h1 {
-      font-weight: 700;
-      margin-bottom: 10px;
+      font-weight: 600;
+      font-size: 2em;
+      color: #ffffff;
+      margin-bottom: 40px;
     }
+
     #data {
-      font-size: 3em;
-      margin: 20px 0;
-      color: #1a73e8;
-      background: #ffffff;
-      padding: 20px 50px;
-      border-radius: 12px;
-      box-shadow: 0 5px 15px rgba(26,115,232,0.3);
+      font-size: 5em;
+      color: #00ff00;
+      background: #000000;
+      padding: 30px 60px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px #00ff00;
+      letter-spacing: 3px;
     }
-    button {
-      background-color: #1a73e8;
-      border: none;
-      padding: 12px 30px;
-      color: white;
-      font-size: 1.2em;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-    button:hover {
-      background-color: #155ab6;
-    }
+
     #error {
-      color: #d93025;
-      margin-top: 15px;
+      color: #ff4c4c;
+      margin-top: 20px;
+      font-size: 1em;
+    }
+
+    @font-face {
+      font-family: 'Digital-7 Mono';
+      src: url('https://fonts.cdnfonts.com/s/16773/Digital7Mono.woff') format('woff');
     }
   </style>
 </head>
 <body>
-  <h1>Live LDR Sensor Value from ESP32</h1>
-  <div id="data">--</div>
-  <button onclick="fetchData()">Fetch Latest Value</button>
+  <h1>LDR Voltage Monitor</h1>
+  <div id="data">--.- V</div>
   <div id="error"></div>
 
   <script>
-    const TOKEN = "BBUS-E8OQ3T41MLmY5Vt6gV7jhZbk56uVkO"; // Your Ubidots token here
-    const DEVICE_LABEL = "esp32"; // Your device label
-    const VARIABLE_LABEL = "temperature"; // Your variable label
+    const TOKEN = "BBUS-E8OQ3T41MLmY5Vt6gV7jhZbk56uVkO"; // Replace with your token
+    const DEVICE_LABEL = "esp32";
+    const VARIABLE_LABEL = "temperature"; // Assuming it's still using this label
 
     async function fetchData() {
       const url = `https://industrial.api.ubidots.com/api/v1.6/devices/${DEVICE_LABEL}/${VARIABLE_LABEL}/lv`;
@@ -73,17 +70,20 @@
           throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        const value = await response.json();
-        document.getElementById("data").innerText = `${value} (ADC value)`;
+        const adcValue = await response.json();
+
+        // Convert ADC (0–4095) to voltage (assumes 3.3V ref)
+        const voltage = (adcValue / 4095.0) * 3.3;
+        document.getElementById("data").innerText = `${voltage.toFixed(2)} V`;
         document.getElementById("error").innerText = "";
       } catch (error) {
         document.getElementById("error").innerText = `Error: ${error.message}`;
       }
     }
 
-    // Auto-fetch every 10 seconds
+    // Fetch initially and every 2 seconds
     fetchData();
-    setInterval(fetchData, 10000);
+    setInterval(fetchData, 2000);
   </script>
 </body>
 </html>
