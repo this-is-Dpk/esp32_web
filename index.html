@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Ubidots Data Display</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    h1 { color: #333; }
+    #data { font-size: 1.5em; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h1>Ubidots Data from ESP32</h1>
+  <button onclick="fetchData()">Get Latest Temperature</button>
+  <div id="data">Press the button to fetch data</div>
+
+  <script>
+    const TOKEN = "BBUS-E8OQ3T41MLmY5Vt6gV7jhZbk56uVkO"; // Your Ubidots token here
+    const DEVICE_LABEL = "esp32"; // Your device label
+    const VARIABLE_LABEL = "temperature"; // Your variable label
+
+    async function fetchData() {
+      const url = `https://industrial.api.ubidots.com/api/v1.6/devices/${DEVICE_LABEL}/${VARIABLE_LABEL}/lv`;
+
+      try {
+        const response = await fetch(url, {
+          headers: {
+            "X-Auth-Token": TOKEN,
+            "Content-Type": "application/json"
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const value = await response.json();
+        document.getElementById("data").innerText = `Latest Temperature: ${value} °C`;
+      } catch (error) {
+        document.getElementById("data").innerText = `Error: ${error.message}`;
+      }
+    }
+  </script>
+</body>
+</html>
